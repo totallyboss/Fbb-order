@@ -33,6 +33,9 @@
     background:var(--teal); color:#fff; padding:8px 12px; border-radius:6px 6px 0 0;
     font-size:0.95rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
   }
+  .section-title.kids{
+    background:var(--gold); color:var(--dark);
+  }
   .items{background:#fff; border-radius:0 0 8px 8px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.08);}
   .item{
     display:flex; align-items:center; padding:12px; border-bottom:1px solid #f0e6d6; gap:10px;
@@ -206,6 +209,22 @@ const MENU = [
     { name: "El Affogato", desc: "Vanilla ice cream with a shot of espresso (+$4.90 Bailey\u0027s/Kahlua)", price: 9.90 },
     { name: "Fruit Sorbet", desc: "Delicious seasonal fruit sorbet", price: 10.90 },
   ]},
+  { section: "\ud83d\udc66 Kids Mains (under 12)", kids: true, items: [
+    { name: "Kids \u2014 Quesadilla de Queso", desc: "Grilled flour tortilla, melted cheese, Mexican rice", price: 13.00 },
+    { name: "Kids \u2014 Quesadilla de Pollo", desc: "Grilled flour tortilla, melted cheese & chicken, Mexican rice", price: 13.00 },
+    { name: "Kids \u2014 Nuggets Chiquitos", desc: "Crispy chicken nuggets, dipping sauce, corn chips", price: 13.00 },
+    { name: "Kids \u2014 Pescadito Taco", desc: "Two crispy fried fish tacos, chipotle sauce, corn tortillas, salad", price: 13.00 },
+    { name: "Kids \u2014 Burrito Chiquito", desc: "Mini burrito: braised chicken, beans, Mexican rice, cheese", price: 13.00 },
+  ]},
+  { section: "\ud83d\udc66 Kids Starter, Dessert & Drinks", kids: true, items: [
+    { name: "Kids \u2014 Corn Chips with Melted Cheese", desc: "Starter bowl", price: 4.00 },
+    { name: "Kids \u2014 Vanilla Ice-Cream", desc: "Topped with Mexican chocolate sauce", price: 4.00 },
+    { name: "Kids Drink \u2014 Coke", desc: "", price: 3.50 },
+    { name: "Kids Drink \u2014 Sprite", desc: "", price: 3.50 },
+    { name: "Kids Drink \u2014 Orange Juice", desc: "", price: 3.50 },
+    { name: "Kids Drink \u2014 Pineapple Juice", desc: "", price: 3.50 },
+    { name: "Kids Drink \u2014 Milk", desc: "", price: 5.00 },
+  ]},
 ];
 
 function itemKey(sIdx, iIdx){ return `${sIdx}-${iIdx}`; }
@@ -217,7 +236,7 @@ function renderMenu(){
     const secDiv = document.createElement('div');
     secDiv.className = 'section';
     const title = document.createElement('div');
-    title.className = 'section-title';
+    title.className = 'section-title' + (section.kids ? ' kids' : '');
     title.textContent = section.section;
     secDiv.appendChild(title);
     const itemsDiv = document.createElement('div');
