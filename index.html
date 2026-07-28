@@ -271,13 +271,26 @@ function copyOrder(){
   const name = document.getElementById('nameInput').value.trim();
   const statusEl = document.getElementById('statusMsg');
   const btn = document.getElementById('submitBtn');
+  const originalText = '📋 Copy My Order as Text';
+
+  const showButtonMessage = (msg, color, revert) => {
+    btn.textContent = msg;
+    btn.style.background = color;
+    if(revert){
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = '';
+      }, 2500);
+    }
+  };
+
   if(!name){
-    statusEl.innerHTML = '<div class="status-msg status-err">Please enter your name first.</div>';
+    showButtonMessage('⚠️ Please enter your name first', '#a0342a', true);
     return;
   }
   const chosenKeys = Object.keys(selections);
   if(chosenKeys.length === 0){
-    statusEl.innerHTML = '<div class="status-msg status-err">Pick at least one item first.</div>';
+    showButtonMessage('⚠️ Pick at least one item first', '#a0342a', true);
     return;
   }
   const flat = flatMenu();
@@ -294,26 +307,19 @@ function copyOrder(){
   let text = `🌯 ${name}'s Flying Burrito Brothers order:\n${lines.join('\n')}`;
   if(total > 0) text += `\nTotal: $${total.toFixed(2)}`;
 
-  const originalText = '📋 Copy My Order as Text';
-  const showButtonFeedback = (ok) => {
+  const showCopyFeedback = (ok) => {
     if(ok){
-      btn.textContent = '✅ Copied! Paste it into your group chat';
-      btn.style.background = '#1e7a44';
+      showButtonMessage('✅ Copied! Paste it into your group chat', '#1e7a44', true);
     } else {
-      btn.textContent = '⚠️ Copy failed — see text below';
-      btn.style.background = '#a0342a';
+      showButtonMessage('⚠️ Copy failed — see text below', '#a0342a', true);
       statusEl.innerHTML = `<textarea style="width:100%;height:120px;margin-top:8px;padding:8px;">${text}</textarea>`;
     }
-    setTimeout(() => {
-      btn.textContent = originalText;
-      btn.style.background = '';
-    }, 2500);
   };
 
   if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(() => showButtonFeedback(true)).catch(() => showButtonFeedback(false));
+    navigator.clipboard.writeText(text).then(() => showCopyFeedback(true)).catch(() => showCopyFeedback(false));
   } else {
-    showButtonFeedback(false);
+    showCopyFeedback(false);
   }
 }
 
