@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flying Burrito Brothers — Group Order</title>
+<style>
+  :root{
+    --red:#c0392b; --dark:#2b1810; --cream:#fdf6e9; --teal:#0a7d6f; --gold:#e0a330;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:var(--cream); color:var(--dark);
+  }
+  header{
+    background:var(--red); color:#fff; padding:20px 16px; text-align:center;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  }
+  header h1{margin:0; font-size:1.4rem; letter-spacing:0.5px;}
+  header p{margin:4px 0 0; font-size:0.85rem; opacity:0.9;}
+  .container{max-width:640px; margin:0 auto; padding:16px;}
+  .name-box{
+    background:#fff; border-radius:10px; padding:16px; margin-bottom:16px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  }
+  .name-box input{
+    width:100%; padding:10px; font-size:1rem; border:1px solid #ddd; border-radius:6px;
+  }
+  .name-box label{font-weight:600; display:block; margin-bottom:6px;}
+  .section{margin-bottom:20px;}
+  .section-title{
+    background:var(--teal); color:#fff; padding:8px 12px; border-radius:6px 6px 0 0;
+    font-size:0.95rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .items{background:#fff; border-radius:0 0 8px 8px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+  .item{
+    display:flex; align-items:center; padding:12px; border-bottom:1px solid #f0e6d6; gap:10px;
+  }
+  .item:last-child{border-bottom:none;}
+  .item input[type=checkbox]{width:20px; height:20px; flex-shrink:0; accent-color:var(--red);}
+  .item-info{flex:1; min-width:0;}
+  .item-name{font-weight:600; font-size:0.95rem;}
+  .item-desc{font-size:0.8rem; color:#777; margin-top:2px;}
+  .item-price{font-weight:700; color:var(--red); font-size:0.9rem; white-space:nowrap;}
+  .qty-controls{
+    display:flex; align-items:center; gap:6px; margin-top:6px;
+  }
+  .qty-controls button{
+    width:26px; height:26px; border-radius:50%; border:1px solid var(--red); background:#fff;
+    color:var(--red); font-weight:700; font-size:1rem; cursor:pointer;
+  }
+  .qty-controls span{min-width:16px; text-align:center; font-weight:600;}
+  .note-input{
+    width:100%; margin-top:6px; padding:6px; font-size:0.8rem; border:1px solid #eee;
+    border-radius:5px; display:none;
+  }
+  .submit-bar{
+    position:sticky; bottom:0; background:var(--cream); padding:12px 0; margin-top:10px;
+  }
+  .submit-btn{
+    width:100%; padding:16px; background:var(--red); color:#fff; border:none; border-radius:10px;
+    font-size:1.05rem; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  }
+  .submit-btn:disabled{background:#ccc; cursor:not-allowed;}
+  .view-toggle{
+    display:flex; justify-content:center; gap:8px; margin:12px 0;
+  }
+  .view-toggle button{
+    padding:8px 16px; border-radius:20px; border:1px solid var(--red); background:#fff;
+    color:var(--red); font-weight:600; cursor:pointer; font-size:0.85rem;
+  }
+  .view-toggle button.active{background:var(--red); color:#fff;}
+  .summary-card{
+    background:#fff; border-radius:10px; padding:16px; margin-bottom:12px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  }
+  .summary-person{font-weight:700; color:var(--teal); margin-bottom:6px; font-size:1rem;}
+  .summary-line{font-size:0.9rem; padding:3px 0; display:flex; justify-content:space-between;}
+  .summary-note{font-size:0.78rem; color:#888; font-style:italic; margin-left:4px;}
+  .agg-line{
+    display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0e6d6;
+    font-size:0.95rem;
+  }
+  .agg-line:last-child{border-bottom:none;}
+  .agg-count{font-weight:700; color:var(--red);}
+  .total-bar{
+    background:var(--dark); color:#fff; border-radius:10px; padding:14px; text-align:center;
+    font-weight:700; font-size:1.1rem; margin-top:10px;
+  }
+  .empty-state{text-align:center; color:#999; padding:30px; font-size:0.9rem;}
+  .status-msg{
+    text-align:center; padding:10px; border-radius:8px; margin-bottom:12px; font-size:0.9rem; font-weight:600;
+  }
+  .status-ok{background:#e3f4e9; color:#1e7a44;}
+  .status-err{background:#fbe4e4; color:#a0342a;}
+  .refresh-btn{
+    display:block; margin:0 auto 12px; padding:8px 16px; border-radius:20px; border:1px solid #999;
+    background:#fff; color:#555; font-size:0.8rem; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌯 Flying Burrito Brothers</h1>
+  <p>Group Order — pick your items below</p>
+</header>
+
+<div class="container">
+
+  <div id="orderView">
+    <div class="name-box">
+      <label for="nameInput">Your name</label>
+      <input type="text" id="nameInput" placeholder="e.g. Joel" autocomplete="off">
+    </div>
+
+    <div id="menuContainer"></div>
+
+    <div class="submit-bar">
+      <button class="submit-btn" id="submitBtn" onclick="copyOrder()">📋 Copy My Order as Text</button>
+    </div>
+    <div id="statusMsg"></div>
+    <p style="text-align:center; font-size:0.8rem; color:#888; margin-top:8px;">
+      Paste it into your group chat so everyone's orders end up in one place.
+    </p>
+  </div>
+
+</div>
+
+<script>
+const MENU = [
+  { section: "Bocaditos (Small Bites)", items: [
+    { name: "Guacamole", desc: "Traditional avocado dip, corn chips (Mild)", price: 16.50 },
+    { name: "Frijoles Totopitos", desc: "Spicy black bean dip, corn chips (Medium)", price: 11.95 },
+    { name: "Chili Con Queso", desc: "Guajillo & green chilli cheese dip (Medium — most popular)", price: 21.95 },
+    { name: "Patatas Bravas", desc: "Crunchy fried potato, smoked pepper sauce, spicy mayo (Mild)", price: 14.50 },
+    { name: "Hongos Fritos", desc: "Battered mushrooms, sweet chilli sauce (Mild)", price: 15.50 },
+    { name: "Jalapeño Rellenos", desc: "Crumbed jalapeño, three cheese mix (Medium)", price: 19.50 },
+    { name: "Ceviche Pacifico", desc: "Lime-cured fish, coconut cream, chilli, cilantro (Mild)", price: 16.50 },
+    { name: "The Flying Fried Chicken", desc: "Served with spicy mayo (Medium — legendary)", price: 18.50 },
+    { name: "Flautas", desc: "Braised chicken, citrus sauce, salsa & mole blanco (Mild)", price: 16.95 },
+    { name: "El Calamar", desc: "Cornmeal dusted calamari, sweet chilli & spicy mayo (Medium)", price: 19.50 },
+  ]},
+  { section: "Light Meals & Tacos", items: [
+    { name: "Machos Nachos", desc: "Chilli con carne, cheese, salsa, sour cream — beef, chicken or veg (Medium)", price: 22.95 },
+    { name: "Street Tacos (2)", desc: "Choose a filling below — light meal size", price: 18.95 },
+    { name: "Street Tacos (3)", desc: "Choose a filling below — main meal size", price: 27.95 },
+  ]},
+  { section: "Taco Fillings (note your choice below)", items: [
+    { name: "Taco de Pollo con Mango", desc: "Braised & pan-fried chicken, onion, sambal, mango mayo", price: 0, note:true },
+    { name: "Taco al Pastor", desc: "Pibil braised pulled pork, smoked pineapple salsa", price: 0, note:true },
+    { name: "Taco al Pollo", desc: "Legendary fried chicken, chipotle chilli mayo", price: 0, note:true },
+    { name: "Taco de Pescado", desc: "Pan seared fish, tomato salsa, cheese, citrus sauce, pesto", price: 0, note:true },
+    { name: "Taco de Patatas", desc: "Smoked chilli potatoes, onions, chilli con queso", price: 0, note:true },
+    { name: "Taco de Hongos Fritos", desc: "Battered mushrooms, sweet chilli sauce", price: 0, note:true },
+    { name: "Taco de Camarones Fritos", desc: "Battered garlic prawns, sweet chilli, chilli mayo (+$1.95)", price: 1.95, note:true },
+  ]},
+  { section: "The Flying Burritos", items: [
+    { name: "Smoked Chipotle Chicken Burrito", desc: "Sour cream, salsa, guacamole, salad greens (Mild)", price: 28.50 },
+    { name: "Adobo Beef Burrito", desc: "Sour cream, salsa, guacamole, salad greens (Medium)", price: 30.45 },
+    { name: "Pibil Pork Burrito", desc: "Sour cream, salsa, guacamole, salad greens (Medium)", price: 28.50 },
+    { name: "Chipotle Spiced Seasonal Vege Burrito", desc: "Sour cream, salsa, guacamole, salad greens", price: 28.50 },
+  ]},
+  { section: "Chimichanga Mexicana", items: [
+    { name: "Chimichanga de Pollo", desc: "Chipotle chicken, onion, capsicum, rice, chilli con queso, beans", price: 28.50 },
+    { name: "Chimichanga Vegetariana", desc: "Deep fried tortilla, mushrooms, spinach, feta, black beans, rice", price: 28.50 },
+  ]},
+  { section: "Quesadillas", items: [
+    { name: "Quesadilla de Pollo", desc: "Pibil braised chicken, homemade pesto", price: 26.95 },
+    { name: "Quesadilla de Pastor", desc: "Pulled pork, pineapple salsa", price: 26.95 },
+    { name: "Quesadilla Picadillo", desc: "Mince beef, spring veges, beans", price: 26.95 },
+    { name: "Quesadilla Verduras", desc: "Seasonal vege, chilli cheese, fruit salsa", price: 26.95 },
+  ]},
+  { section: "Enchiladas", items: [
+    { name: "Mole Blanco", desc: "Braised chicken, creamy white sauce, herbs", price: 28.95 },
+    { name: "Ancho Chili Pork", desc: "Braised pork, chipotle sauce", price: 28.95 },
+    { name: "Frijoles Enchilada", desc: "Spicy black beans, chipotle sauce", price: 28.95 },
+  ]},
+  { section: "Para Acompañar (Sides)", items: [
+    { name: "Flour Tortillas", desc: "", price: 1.50 },
+    { name: "Jalapeños", desc: "", price: 4.95 },
+    { name: "Sour Cream", desc: "", price: 4.95 },
+    { name: "Salsa Verde", desc: "", price: 4.95 },
+    { name: "Black Beans", desc: "", price: 4.95 },
+    { name: "Mexican Rice", desc: "", price: 4.95 },
+    { name: "Salad", desc: "", price: 7.50 },
+    { name: "Salsa", desc: "small/large", price: 6.50 },
+    { name: "Guacamole (side)", desc: "small/large", price: 7.50 },
+    { name: "Pepitas / Corn Chips", desc: "", price: 7.50 },
+  ]},
+  { section: "Algo Dulce (Dessert)", items: [
+    { name: "El Bombon", desc: "Chocolate brownie, cinnamon chocolate sauce, vanilla ice-cream", price: 14.95 },
+    { name: "Churros", desc: "Mexican donut strips, dipping sauces (+$2.95 for ice-cream)", price: 14.95 },
+    { name: "Banana Chimichanga", desc: "Banana, caramel, cinnamon & sugar, vanilla ice-cream", price: 14.95 },
+    { name: "Fruit Sorbet", desc: "Seasonal fruit sorbet (GF, DF, Vegan)", price: 10.95 },
+  ]},
+];
+
+function itemKey(sIdx, iIdx){ return `${sIdx}-${iIdx}`; }
+
+function renderMenu(){
+  const container = document.getElementById('menuContainer');
+  container.innerHTML = '';
+  MENU.forEach((section, sIdx) => {
+    const secDiv = document.createElement('div');
+    secDiv.className = 'section';
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = section.section;
+    secDiv.appendChild(title);
+    const itemsDiv = document.createElement('div');
+    itemsDiv.className = 'items';
+    section.items.forEach((item, iIdx) => {
+      const key = itemKey(sIdx, iIdx);
+      const row = document.createElement('div');
+      row.className = 'item';
+      row.innerHTML = `
+        <input type="checkbox" id="chk-${key}" onchange="toggleItem('${key}')">
+        <div class="item-info">
+          <div class="item-name">${item.name}</div>
+          ${item.desc ? `<div class="item-desc">${item.desc}</div>` : ''}
+          <div class="qty-controls" id="qty-${key}" style="display:none;">
+            <button onclick="changeQty('${key}',-1)">−</button>
+            <span id="qtynum-${key}">1</span>
+            <button onclick="changeQty('${key}',1)">+</button>
+          </div>
+        </div>
+        <div class="item-price">${item.price > 0 ? '$' + item.price.toFixed(2) : ''}</div>
+      `;
+      itemsDiv.appendChild(row);
+    });
+    secDiv.appendChild(itemsDiv);
+    container.appendChild(secDiv);
+  });
+}
+
+const selections = {};
+
+function toggleItem(key){
+  const chk = document.getElementById(`chk-${key}`);
+  const qtyDiv = document.getElementById(`qty-${key}`);
+  if(chk.checked){
+    selections[key] = 1;
+    qtyDiv.style.display = 'flex';
+  } else {
+    delete selections[key];
+    qtyDiv.style.display = 'none';
+  }
+}
+
+function changeQty(key, delta){
+  const cur = selections[key] || 1;
+  const next = Math.max(1, cur + delta);
+  selections[key] = next;
+  document.getElementById(`qtynum-${key}`).textContent = next;
+}
+
+function flatMenu(){
+  const flat = [];
+  MENU.forEach((section, sIdx) => {
+    section.items.forEach((item, iIdx) => {
+      flat.push({ key: itemKey(sIdx, iIdx), ...item, section: section.section });
+    });
+  });
+  return flat;
+}
+
+function copyOrder(){
+  const name = document.getElementById('nameInput').value.trim();
+  const statusEl = document.getElementById('statusMsg');
+  if(!name){
+    statusEl.innerHTML = '<div class="status-msg status-err">Please enter your name first.</div>';
+    return;
+  }
+  const chosenKeys = Object.keys(selections);
+  if(chosenKeys.length === 0){
+    statusEl.innerHTML = '<div class="status-msg status-err">Pick at least one item first.</div>';
+    return;
+  }
+  const flat = flatMenu();
+  let total = 0;
+  const lines = chosenKeys.map(key => {
+    const item = flat.find(f => f.key === key);
+    const qty = selections[key];
+    const lineTotal = item.price * qty;
+    total += lineTotal;
+    const priceStr = item.price > 0 ? ` ($${lineTotal.toFixed(2)})` : '';
+    return `- ${qty}x ${item.name}${priceStr}`;
+  });
+
+  let text = `🌯 ${name}'s Flying Burrito Brothers order:\n${lines.join('\n')}`;
+  if(total > 0) text += `\nTotal: $${total.toFixed(2)}`;
+
+  const finish = (ok) => {
+    statusEl.innerHTML = ok
+      ? `<div class="status-msg status-ok">✅ Copied! Paste it into your group chat.</div>`
+      : `<div class="status-msg status-err">Couldn't copy automatically — select and copy the text below:</div><textarea style="width:100%;height:120px;margin-top:8px;padding:8px;">${text}</textarea>`;
+  };
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(() => finish(true)).catch(() => finish(false));
+  } else {
+    finish(false);
+  }
+}
+
+renderMenu();
+</script>
+
+</body>
+</html>
